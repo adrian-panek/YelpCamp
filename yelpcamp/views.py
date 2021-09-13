@@ -23,16 +23,21 @@ def seedDB(request):
         campground_random_location = (f"{random_cityname}, {random_state}")
         campground.title = campground_random_title
         campground.location = campground_random_location
+        campground.image = "https://images.unsplash.com/photo-1484815843298-2c13cbc1b66f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHw0ODMyNTF8fHx8fHx8MTYzMTU1MTkwNQ&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080"
+        campground.description = 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Reprehenderit laudantium eos nihil repudiandae incidunt quidem iure neque provident aperiam vero eum quas saepe fuga veniam, exercitationem, iste maxime itaque quam.'
         campground.save()
     return HttpResponse ("<h1>Database seed</h1>")
 
 def HomePage(request):
+    return render(request, 'home.html')
+
+def IndexPage(request):
     campgrounds = Campground.objects.all()
-    return render(request, 'yelpcamp/index.html', {'campgrounds': campgrounds})
+    return render(request, 'index.html', {'campgrounds': campgrounds})
 
 def ShowPage(request, id):
     campground = Campground.objects.get(id=id)
-    return render(request, 'yelpcamp/show.html', {'campground': campground})
+    return render(request, 'show.html', {'campground': campground})
 
 def NewCampground(request):
     form = CampgroundForm()
@@ -43,7 +48,7 @@ def NewCampground(request):
             form.save()
             return redirect("campgrounds-list")
     context = {'form': form}
-    return render (request, 'yelpcamp/new.html', context)
+    return render (request, 'new.html', context)
 
 def UpdatePage(request, id):
     campground = Campground.objects.get(id=id)
@@ -54,7 +59,7 @@ def UpdatePage(request, id):
             form.save()
             return redirect("campgrounds-list")
     context = {'form': form}
-    return render(request, 'yelpcamp/edit.html', context)
+    return render(request, 'edit.html', context)
 
 def DeletePage(request, id):
     campground = Campground.objects.get(id=id)
@@ -62,4 +67,4 @@ def DeletePage(request, id):
         campground.delete()
         return redirect("campgrounds-list")
     context = {'campground': campground}
-    return render(request, 'yelpcamp/delete.html', context)
+    return render(request, 'delete.html', context)

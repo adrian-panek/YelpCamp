@@ -1,0 +1,11 @@
+{% extends 'main.html' %}
+
+{% block body %}
+    <p>Are you sure you want to delete {{ campground }}?</p>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <a href="{% url 'campgrounds-list' %}">Go back</a>
+        <button type="submit">Delete</button>
+    </form>
+
+{% endblock %}

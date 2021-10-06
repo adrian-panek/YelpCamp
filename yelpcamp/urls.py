@@ -1,10 +1,15 @@
 from django.urls import path
 
-from .views import HomePage, IndexPage, ShowPage, NewCampground, UpdatePage, DeletePage, seedDB
+from .views import *
 
 urlpatterns = [ 
     path('seeddb/', seedDB),
     path('', HomePage, name="homepage"),
+    
+    path('login', LoginPage, name="login"),
+    path('logout', LogoutPage, name="logout"),
+    path('register', RegisterPage, name="register"),
+
     path('campgrounds/', IndexPage, name="campgrounds-list"),
     path('campgrounds/new', NewCampground, name="campground-new"),
     path('campgrounds/<int:id>/', ShowPage, name="campground-detail"),

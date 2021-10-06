@@ -18,4 +18,6 @@
         </ul>
       </div>
     </div>
+    <span>Hello, {{ request.user }}</span>
+    <span><a href="{% url 'logout' %}">Logout</a></span>
   </nav>

@@ -1,11 +1,12 @@
 import random
-from typing import ContextManager
 
-from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 from .models import Campground
-from .forms import CampgroundForm
+from .forms import CampgroundForm, CreateUserForm
 from seeds import cities, names
 
 def seedDB(request):
@@ -29,27 +30,28 @@ def seedDB(request):
     return HttpResponse ("<h1>Database seed</h1>")
 
 def HomePage(request):
-    return render(request, 'home.html')
+    return render(request, 'partials/home.html')
 
 def IndexPage(request):
     campgrounds = Campground.objects.all()
-    return render(request, 'index.html', {'campgrounds': campgrounds})
+    return render(request, 'campgrounds/index.html', {'campgrounds': campgrounds})
 
 def ShowPage(request, id):
     campground = Campground.objects.get(id=id)
-    return render(request, 'show.html', {'campground': campground})
+    return render(request, 'campgrounds/show.html', {'campground': campground})
 
+@login_required(login_url='login')
 def NewCampground(request):
     form = CampgroundForm()
     if request.method == 'POST':
-        print(f"Printing POST: {request.POST}")
         form = CampgroundForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect("campgrounds-list")
     context = {'form': form}
-    return render (request, 'new.html', context)
+    return render (request, 'campgrounds/new.html', context)
 
+@login_required(login_url='login')
 def UpdatePage(request, id):
     campground = Campground.objects.get(id=id)
     form = CampgroundForm(instance=campground)
@@ -59,12 +61,45 @@ def UpdatePage(request, id):
             form.save()
             return redirect("campgrounds-list")
     context = {'form': form}
-    return render(request, 'edit.html', context)
+    return render(request, 'campgrounds/edit.html', context)
 
+@login_required(login_url='login')
 def DeletePage(request, id):
     campground = Campground.objects.get(id=id)
     if request.method == 'POST':
         campground.delete()
         return redirect("campgrounds-list")
     context = {'campground': campground}
-    return render(request, 'delete.html', context)
+    return render(request, 'campgrounds/delete.html', context)
+
+def LoginPage(request):
+    if request.user.is_authenticated:
+        return redirect("homepage")
+    else:
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect("homepage")
+            else:
+                print("Username or password is incorrect")
+    return render(request, "accounts/login.html")
+
+def RegisterPage(request):
+    if request.user.is_authenticated:
+        return redirect('homepage')
+    else:
+        form = CreateUserForm()
+        if request.method == 'POST':
+            form = CreateUserForm(request.POST)
+            if form.is_valid():
+                form.save()
+    context = {'form': form}
+    return render(request, "accounts/register.html", context)
+
+def LogoutPage(request):
+    logout(request)
+    return redirect("login")
+

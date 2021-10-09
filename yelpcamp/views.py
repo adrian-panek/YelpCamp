@@ -86,7 +86,6 @@ def LoginPage(request):
                 return redirect("homepage")
             else:
                 messages.info(request, "Incorrect Login or Password")
-                return redirect("login")
     return render(request, "accounts/login.html")
 
 def RegisterPage(request):
@@ -100,6 +99,7 @@ def RegisterPage(request):
                 form.save()
                 user = form.cleaned_data.get('username')
                 messages.success(request, "Congratulations, you just created an account, " + user)
+                return redirect("login")
     context = {'form': form}
     return render(request, "accounts/register.html", context)
 

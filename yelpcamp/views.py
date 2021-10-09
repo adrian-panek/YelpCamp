@@ -1,12 +1,13 @@
 import random
 
+from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 
 from .models import Campground
-from .forms import CampgroundForm, CreateUserForm
+from .forms import CampgroundForm, UserCreationForm
 from seeds import cities, names
 
 def seedDB(request):
@@ -84,18 +85,21 @@ def LoginPage(request):
                 login(request, user)
                 return redirect("homepage")
             else:
-                print("Username or password is incorrect")
+                messages.info(request, "Incorrect Login or Password")
+                return redirect("login")
     return render(request, "accounts/login.html")
 
 def RegisterPage(request):
     if request.user.is_authenticated:
         return redirect('homepage')
     else:
-        form = CreateUserForm()
+        form = UserCreationForm()
         if request.method == 'POST':
-            form = CreateUserForm(request.POST)
+            form = UserCreationForm(request.POST)
             if form.is_valid():
                 form.save()
+                user = form.cleaned_data.get('username')
+                messages.success(request, "Congratulations, you just created an account, " + user)
     context = {'form': form}
     return render(request, "accounts/register.html", context)
 

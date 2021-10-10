@@ -8,7 +8,7 @@ from .models import Campground
 class CampgroundForm(ModelForm):
     class Meta:
         model = Campground
-        fields = '__all__'
+        fields = ['title', 'price', 'description', 'location', 'image']
 
 class CreateUserForm(UserCreationForm):
     class Meta:

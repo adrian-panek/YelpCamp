@@ -4,3 +4,4 @@ yelpcamp/__pycache__
 yelpcamp/migrations
 seeds/__pycache__
 my_app/__pycache__
+decorators.py

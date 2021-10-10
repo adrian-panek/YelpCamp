@@ -7,8 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 
 from .models import Campground
-from .forms import CampgroundForm, UserCreationForm
 from seeds import cities, names
+from .decorators import owner_only
+from .forms import CampgroundForm, UserCreationForm
 
 def seedDB(request):
     Campground.objects.all().delete()
@@ -47,6 +48,8 @@ def NewCampground(request):
     if request.method == 'POST':
         form = CampgroundForm(request.POST)
         if form.is_valid():
+            instance = form.save(commit=False)
+            instance.author = request.user
             form.save()
             return redirect("campgrounds-list")
     context = {'form': form}
@@ -62,7 +65,10 @@ def UpdatePage(request, id):
             form.save()
             return redirect("campgrounds-list")
     context = {'form': form}
-    return render(request, 'campgrounds/edit.html', context)
+    if request.user == campground.author:
+        return render(request, 'campgrounds/edit.html', context)
+    else:
+        return HttpResponse ("<h1>You are not allowed to see this page</h1>")
 
 @login_required(login_url='login')
 def DeletePage(request, id):
@@ -71,7 +77,10 @@ def DeletePage(request, id):
         campground.delete()
         return redirect("campgrounds-list")
     context = {'campground': campground}
-    return render(request, 'campgrounds/delete.html', context)
+    if request.user == campground.author:
+        return render(request, 'campgrounds/edit.html', context)
+    else:
+        return HttpResponse ("<h1>You are not allowed to see this page</h1>")
 
 def LoginPage(request):
     if request.user.is_authenticated:
